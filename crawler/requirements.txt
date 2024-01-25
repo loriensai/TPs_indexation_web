@@ -1,2 +1,3 @@
 beautifulsoup4
-urllib
+urllib3
+protego
