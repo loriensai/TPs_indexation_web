@@ -1,9 +1,13 @@
 from sqlalchemy.sql import text, func
-# from setup_bdd import setup_database
 import datetime
 
-def afficher_table(session):
 
+def afficher_table(session):
+    """ Affichage de la table 'webpages' en console 
+
+    Args:
+        session (Session): Une instance de session SQLAlchemy pour interagir avec la base de données
+    """
     # Requête
     select_query = text("SELECT * FROM webpages")
 
@@ -15,7 +19,17 @@ def afficher_table(session):
         print(row)
 
 def mise_a_jour_age_table(session):
+    """ Mise à jour de l'âge des pages web dans la table 'webpages'
 
+    L'âge d'une page vaut 0 lorsque la page est indexée pour la première fois.
+    Puis il augmente jusqu'à ce que la page soit à nouveau explorée.
+    Lorsque la page est à nouveau explorée, son âge vaut à nouveau 0. 
+
+    Ici, l'âge est exprimé en minutes et se calcule en faisant la différence entre la date à laquelle la fonction est appelée et la date de la dernière exploration
+
+    Args:
+        session (Session): Une instance de session SQLAlchemy pour interagir avec la base de données
+    """
     # Requête
     update_query = text("UPDATE webpages SET age = CAST(EXTRACT(EPOCH FROM AGE(current_timestamp, derniere_visite)) / 60 AS INTEGER)")
     
@@ -26,7 +40,15 @@ def mise_a_jour_age_table(session):
     session.commit()
 
 def trouver_webpage(session, lien):
+    """ Véifier si une page web est déjà présente dans la base de données 
 
+    Args:
+        session (Session): Une instance de session SQLAlchemy pour interagir avec la base de données
+        lien (str): L'URL de la page web
+
+    Returns:
+        bool : True si la page web existe dans la base de données et False sinon
+    """
     # Requête
     select_query = text("SELECT * FROM webpages WHERE lien=:lien")
     data = {'lien': lien}
@@ -40,7 +62,15 @@ def trouver_webpage(session, lien):
     return True if len(resultat) else False
 
 def inserer_webpage(session, lien):
+    """ Insertion ou modification d'une page web dans la base de données 
 
+    Si la page web n'existe pas en base de données, alors elle est ajoutée.
+    Si la page web existe, ses informations sont mises à jour.
+
+    Args:
+        session (Session): Une instance de session SQLAlchemy pour interagir avec la base de données
+        lien (str): L'URL de la page web
+    """
     # Traitement d'une nouvelle page jamais rencontrée
     if not(trouver_webpage(session, lien)) : 
 
@@ -66,10 +96,3 @@ def inserer_webpage(session, lien):
 
         # Commit pour enregistrer les mises à jour dans la base de données
         session.commit()
-
-
-# if __name__ == "__main__":
-#     db_session = setup_database()
-#     #inserer_webpage(db_session, 'http://example.com')
-#     afficher_table(db_session)
-#     mise_a_jour_age_table(db_session)

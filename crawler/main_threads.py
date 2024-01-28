@@ -1,6 +1,6 @@
 import time
 import datetime
-import concurrent.futures
+import threading
 import urllib.parse 
 import urllib.request
 from bs4 import BeautifulSoup
@@ -10,11 +10,9 @@ from sqlalchemy.orm import sessionmaker
 from utils.url import URL
 from dao.setup_bdd import setup_database
 from dao.crawled_webpages_dao import afficher_table, mise_a_jour_age_table, trouver_webpage, inserer_webpage
-import threading
-import queue
 
 
-# Initialisation  
+# Initialisation des variables globales qui seront connues de tous les threads 
 frontier = []
 urls_visitees = [] # URLs visitées pour ne pas les visiter plusieurs fois + critère d'arrêt
 sitemaps_visites = [] # URLs des sitemaps visités 
@@ -22,18 +20,27 @@ urls_pb = [] # URLs où on n'est pas autorisés à crawler ou qui n'ont pas pu �
 urls_en_cours_de_traitement = [] # URLs en cours de traitement pour ne pas les ajouter à frontier quand un autre thread est en train de le traiter
 
 # Ajout du verrou
-frontier_lock = threading.Lock()
+global_lock = threading.Lock()
 
 
 def crawler_worker(db_session, max_liens, max_liens_page):
-    """ Fonction worker pour le crawler """
+    """ Fonction worker pour le crawler 
 
+    Cette fonction définit la tâche du crawler effectuée par un worker dans un thread.
+
+    Args:
+        db_session (Session): Une instance de session SQLAlchemy pour interagir avec la base de données
+        max_liens (int, optional): Nombre maximum de liens à trouver et à télécharger
+        max_liens_page (int, optional): Nombre maximum de liens à explorer par page
+    """
+
+    # Déclaration des variables globales pour pouvoir ensuite les modifier et qu'elles soient connues de tous les threads
     global frontier, urls_visitees, sitemaps_visites, urls_pb, urls_en_cours_de_traitement
 
     while (len(urls_visitees) < max_liens) and len(frontier):
 
         # Prendre une URL de frontier
-        with frontier_lock:
+        with global_lock:
             if not frontier:
                 break
             url = URL(url=frontier.pop(0))  # Frontier FIFO : first in first out 
@@ -50,7 +57,7 @@ def crawler_worker(db_session, max_liens, max_liens_page):
                 autorisation = rp.can_fetch(url.text, "*")
                 if autorisation: 
                     # Récupérer les sitemaps du site
-                    with frontier_lock : 
+                    with global_lock : 
                         for s in list(rp.sitemaps):
                             url_sitemap = URL(url=s)
                             if url_sitemap.text not in (frontier + sitemaps_visites + urls_en_cours_de_traitement) and url_sitemap.text != url.text:
@@ -83,7 +90,8 @@ def crawler_worker(db_session, max_liens, max_liens_page):
                 if url.type == "xml": 
 
                     # Ajouter le sitemap aux sitemaps visités
-                    sitemaps_visites.append(url.text)
+                    with global_lock : 
+                        sitemaps_visites.append(url.text)
 
                     # Analyser la page
                     soup = BeautifulSoup(doc,"xml")
@@ -92,7 +100,7 @@ def crawler_worker(db_session, max_liens, max_liens_page):
                     liens_recuperes = []
                     for lien in soup.find_all("url"):
                         lien_href = URL(url=lien.findNext("loc").text)
-                        with frontier_lock : 
+                        with global_lock : 
                             # S'assurer que max_liens_page sont ajoutés à frontier 
                             if len(liens_recuperes) < max_liens_page:
                                 # S'assurer qu'ils n'ont pas été visités
@@ -102,14 +110,14 @@ def crawler_worker(db_session, max_liens, max_liens_page):
                                 break
 
                     # Ajouter les nouvelles URLs à frontier
-                    with frontier_lock:
+                    with global_lock:
                         frontier.extend(liens_recuperes)
 
                 # Fichier html
                 elif url.type == "html":
                     
                     # Ajouter l'URL analysée à urls_visitees et en base de données
-                    with frontier_lock : 
+                    with global_lock : 
                         urls_visitees.append(url.text)
                         inserer_webpage(db_session, url.text)
 
@@ -122,7 +130,7 @@ def crawler_worker(db_session, max_liens, max_liens_page):
                         lien_href = lien.get('href') 
                         if lien_href is not None and len(lien_href):
                             lien_href = URL(url=lien.get('href'))
-                            with frontier_lock : 
+                            with global_lock : 
                                 # S'assurer que max_liens_page sont ajoutés à frontier
                                 if len(liens_recuperes) < max_liens_page:
                                     # S'assurer qu'ils n'ont pas été visités
@@ -132,11 +140,11 @@ def crawler_worker(db_session, max_liens, max_liens_page):
                                     break
             
                     # Ajouter les nouvelles URLs à frontier
-                    with frontier_lock:
+                    with global_lock:
                         frontier.extend(liens_recuperes)
                 
                 # Mise à jour de l'âge dans la base de données
-                with frontier_lock: 
+                with global_lock: 
                     mise_a_jour_age_table(db_session)
                 
                 # Politeness
@@ -150,11 +158,20 @@ def crawler_worker(db_session, max_liens, max_liens_page):
         urls_en_cours_de_traitement.remove(url.text)
 
 def crawler(db_session, url_entree, max_liens=50, max_liens_page=5, num_threads=3):
-    """ Crawler """
+    """ Crawler multi-threaded
+
+    Args:
+        db_session (Session): Une instance de session SQLAlchemy pour interagir avec la base de données
+        url_entree (str): L'URL d'entrée unique (seed)
+        max_liens (int, optional): Nombre maximum de liens à trouver et à télécharger. Valeur par défaut 50.
+        max_liens_page (int, optional): Nombre maximum de liens à explorer par page. Valeur par défaut 5.
+        num_threads (int, optional): Nombre de threads. Valeur par défaut 3.
+    """
 
     global frontier, urls_visitees, sitemaps_visites, urls_pb
 
     # Initialisation 
+    # Pour avoir suffisamment d'URLs dans frontier pour faire travailler tous les threads, on récupère les sitesmaps du l'URL d'entrée
     url = URL(url=url_entree)
     req = urllib.request.urlopen(url.get_url_robots) 
     if req.status == 200:
@@ -165,12 +182,10 @@ def crawler(db_session, url_entree, max_liens=50, max_liens_page=5, num_threads=
             # Récupérer les sitemaps du site
             for s in list(rp.sitemaps):
                 url_sitemap = URL(url=s)
-                with frontier_lock:
+                with global_lock:
                     if url_sitemap.text not in (frontier + sitemaps_visites) and url_sitemap.text != url.text:
                         frontier.append(url_sitemap.text)
     urls_visitees.append(url.text)
-    print('frontier',frontier)
-    print(urls_visitees)
 
     # Créer la liste des threads
     threads = []
@@ -201,11 +216,14 @@ def crawler(db_session, url_entree, max_liens=50, max_liens_page=5, num_threads=
 
 
 if __name__=="__main__":
-    db_session = setup_database()
+    # Etablir la connexion avec la base de données et créer la table 'webpages'
+    db_session = setup_database() 
+    # Paramètres
     url_entree = "https://ensai.fr/"
     max_liens = 50
     max_liens_page = 5
     num_threads = 3
+    # Lancement du crawler
     start_time = time.time()
     crawler(db_session, url_entree, max_liens, max_liens_page, num_threads)
     end_time = time.time()

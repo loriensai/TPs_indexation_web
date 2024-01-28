@@ -12,7 +12,14 @@ from dao.crawled_webpages_dao import afficher_table, mise_a_jour_age_table, trou
 
 
 def crawler(db_session, url_entree, max_liens=50, max_liens_page=5):
-    """ Crawler """
+    """ Crawler 
+
+    Args:
+        db_session (Session): Une instance de session SQLAlchemy pour interagir avec la base de données
+        url_entree (str): L'URL d'entrée unique (seed)
+        max_liens (int, optional): Nombre maximum de liens à trouver et à télécharger. Valeur par défaut 50.
+        max_liens_page (int, optional): Nombre maximum de liens à explorer par page. Valeur par défaut 5.
+    """
 
     # Initialisation  
     frontier = [url_entree] # Frontier avec les URLs de la seed 
@@ -127,11 +134,6 @@ def crawler(db_session, url_entree, max_liens=50, max_liens_page=5):
         # Aucune autorisation pour crawler l'URL
         else : 
             urls_pb.append(url.text)
-        
-        # print('frontier', frontier)
-        # print('pb', urls_pb)
-        # print('visited', urls_visitees)
-        # print('sitemaps visités', sitemaps_visites)
     
     # Ecrire les liens visités dans un fichier txt
     nom_fichier = "resultats/crawled_webpages.txt"
@@ -146,10 +148,13 @@ def crawler(db_session, url_entree, max_liens=50, max_liens_page=5):
 
 
 if __name__=="__main__":
-    db_session = setup_database()
+    # Etablir la connexion avec la base de données et créer la table 'webpages'
+    db_session = setup_database() 
+    # Paramètres
     url_entree = "https://ensai.fr/"
     max_liens = 50
     max_liens_page = 5
+    # Lancement du crawler
     start_time = time.time()
     crawler(db_session, url_entree, max_liens, max_liens_page)
     end_time = time.time()
