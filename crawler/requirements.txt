@@ -2,3 +2,5 @@ beautifulsoup4
 urllib3
 protego
 lxml
+psycopg2_binary
+SQLAlchemy

@@ -39,12 +39,12 @@ https://ensai.fr/en/actu-et-evenements/
 https://network.ensai.fr/
 https://ensai.fr/en/contactez-nous/
 https://ensai.fr/en/1-ensai/presentation/
-https://ensai.fr/billet-pourquoi-linflation-europeenne-est-elle-si-faible/
-https://ensai.fr/guerres-commerciales-le-billet-economique-de-stephane-auray-et-aurelien-eyquem/
-https://ensai.fr/position-in-applied-econometrics/
-https://ensai.fr/position-in-computer-science-at-ensai/
-https://ensai.fr/position-in-statistics-at-ensai/
 https://ensai.fr/en/study-madrid-erasmus-complutense/
 https://ensai.fr/actu-et-evenements/
 https://ensai.fr/contactez-nous/
 https://ensai.fr/2-cursus/eleve-de-cpge-mp/
+https://ensai.fr/en/double-degree-universita-sapienza-ensai/
+https://ensai.fr/2-cursus/eleve-de-cpge-khagne-b-l/
+https://ensai.fr/2-cursus/eleve-de-cpge-cachan-d2/
+https://ensai.fr/1-ensai/grande-ecole-data-science/
+https://ensai.fr/1-ensai/engagements-et-valeurs/
