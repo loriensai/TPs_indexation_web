@@ -150,4 +150,7 @@ if __name__=="__main__":
     url_entree = "https://ensai.fr/"
     max_liens = 50
     max_liens_page = 5
+    start_time = time.time()
     crawler(db_session, url_entree, max_liens, max_liens_page)
+    end_time = time.time()
+    print("Temps de compilation: ", end_time - start_time)
