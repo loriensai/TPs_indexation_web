@@ -137,3 +137,5 @@ De plus, à l'initialisation de la frontier, il est important d'ajouter au dépa
 Lorsque la condition d'arrêt est obtenue par un thread, le programme attend que tous les autres threads finissent de traiter l'URL qui était en cours de traitement. 
 
 Comme pour le crawler single-threaded, toutes les URLs trouvées et téléchargées sont stockées dans le fichier `crawled_webpages_threads.txt` situé dans le dossier `resultats` et l'état de la base de données est affiché.
+
+> Plusieurs choix ont été faits quant à l'implémentation du crawler. Certains pourraient bien évidemment être discutés. Par exemple, on pourrait se demander si l'unité de mesure de l'âge est judicieuse, si elle devrait être plus ou moins précise. On pourrait aussi essayer de trouver un moyen plus efficace pour modifier l'âge en temps réel dans la base de données. Aussi, pour le crawler multi-threaded, il serait peut-être plus judicieux d'utiliser un verrou pour chaque variable globale au lieu d'utiliser un verrou global.
