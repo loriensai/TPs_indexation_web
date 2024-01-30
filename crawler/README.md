@@ -19,9 +19,9 @@ Le crawler respecte deux principales règles de bonnes pratiques :
 *   **main_threads.py** : contient le code de création et de lancement d'un crawler multi-threaded. 
 
 Cette archive se compose également de 3 dossiers nécessaires au lancement du projet et qui sont automatiquement appelés dans les fichiers main, on retrouve : 
-*   dao : contient les codes pour créer et réaliser des opérations avec la base de données ;
-*   utils : contient un objet URL pour réaliser des opérations simples sur une URL ; 
-*   resultats : contient les fichiers .txt avec toutes les URLs trouvées par les crawlers. 
+*   **dao** : contient les codes pour créer et réaliser des opérations avec la base de données ;
+*   **utils** : contient un objet URL pour réaliser des opérations simples sur une URL ; 
+*   **resultats** : contient les fichiers .txt avec toutes les URLs trouvées par les crawlers. 
 
 ## Installation des dépendances 
 
