@@ -136,4 +136,4 @@ De plus, à l'initialisation de la frontier, il est important d'ajouter au dépa
 
 Lorsque la condition d'arrêt est obtenue par un thread, le programme attend que tous les autres threads finissent de traiter l'URL qui était en cours de traitement. 
 
-Comme pour le crawler single-threaded, toutes les URLs trouvées et téléchargées sont stockées dans le fichier `crawled_webpages_threads.txt` situé dans le dossier `resultats`. Le crawler affiche également l'état de la base de données. 
+Comme pour le crawler single-threaded, toutes les URLs trouvées et téléchargées sont stockées dans le fichier `crawled_webpages_threads.txt` situé dans le dossier `resultats` et l'état de la base de données est affiché.
