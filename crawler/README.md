@@ -61,9 +61,9 @@ Les scripts python main sont conçus pour afficher l'état de la base de donnée
 
 *   Lancement de la console `psql` pour requêter manuellement la table du jeu de données : 
 
-```
-psql -h localhost -U admin -d admin_db -p 5433
-```
+    ```
+    psql -h localhost -U admin -d admin_db -p 5433
+    ```             
 
     Si un mot de passe est demandé, entrez `password`.
 
