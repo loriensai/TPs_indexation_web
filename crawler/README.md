@@ -65,6 +65,8 @@ Les scripts python main sont conçus pour afficher l'état de la base de donnée
 psql -h localhost -U admin -d admin_db -p 5433
 ```
 
+    Si un mot de passe est demandé, entrez `password`.
+
 *   Commande pour voir toutes les tables créées : ```\dt```     
 
 *   Quitter la console `psql` : ```\q```                 
