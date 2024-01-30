@@ -48,12 +48,13 @@ def crawler_worker(db_session, max_liens, max_liens_page):
 
         print(f'URL en cours de traitement par {threading.current_thread().name}: {url}')
 
-        # Vérifier que le robot nous autorise à visiter la page
+        # Analyser le contenu du fichier robots.txt 
         try: 
             req = urllib.request.urlopen(url.get_url_robots) 
             if req.status == 200:
                 robots_txt = req.read().decode("utf-8") 
                 rp = Protego.parse(robots_txt)
+                # Vérifier que le robot nous autorise à visiter la page
                 autorisation = rp.can_fetch(url.text, "*")
                 if autorisation: 
                     # Récupérer les sitemaps du site
@@ -77,7 +78,8 @@ def crawler_worker(db_session, max_liens, max_liens_page):
                 req = urllib.request.urlopen(url.text)
                 end_time = time.time()
             except: 
-                urls_pb.append(url.text)
+                with global_lock:
+                    urls_pb.append(url.text)
                 continue
 
             # Analyser le contenu 
@@ -152,7 +154,8 @@ def crawler_worker(db_session, max_liens, max_liens_page):
 
         # Aucune autorisation pour crawler l'URL
         else: 
-            urls_pb.append(url.text)
+            with global_lock:
+                urls_pb.append(url.text)
 
         # Suppression de l'URLs qui était en cours de traitement 
         urls_en_cours_de_traitement.remove(url.text)

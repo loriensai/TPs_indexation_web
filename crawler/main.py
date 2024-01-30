@@ -35,12 +35,13 @@ def crawler(db_session, url_entree, max_liens=50, max_liens_page=5):
 
         print('Url en cours de traitement :', url)
 
-        # Vérifier que le robot nous autorise à visiter la page
+        # Analyser le contenu du fichier robots.txt 
         try : 
             req = urllib.request.urlopen(url.get_url_robots) 
             if req.status == 200 :
                 robots_txt = req.read().decode("utf-8") 
                 rp = Protego.parse(robots_txt)
+                # Vérifier que le robot nous autorise à visiter la page
                 autorisation = rp.can_fetch(url.text, "*")
                 if autorisation : 
                     # Récupérer les sitemaps du site
