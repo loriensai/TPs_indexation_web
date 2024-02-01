@@ -1,10 +1,10 @@
 import json
-import numpy as np
 import pandas as pd 
 import nltk
 from nltk.tokenize import regexp_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
+
 
 # Deux prochaines lignes à compiler seulement si les modèles ne sont pas déjà téléchargés
 # nltk.download('punkt') 
@@ -87,6 +87,7 @@ def index(liste_urls, langage='french', option=None):
 
 
 if __name__=="__main__":
+    # Liste des URLs générer par un crawler
     liste_urls = "donnees/crawled_urls.json"
     # Data processing simple
     index(liste_urls)
