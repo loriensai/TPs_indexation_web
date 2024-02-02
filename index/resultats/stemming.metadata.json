@@ -1,6 +1,7 @@
-{
-    "nombre_documents": 13550,
-    "nombre_tokens_title": 103819,
-    "nombre_tokens_unique_title": 9227,
-    "moyenne_tokens_title": 8
-}
+{"moyenne_tokens_content": 302,
+ "moyenne_tokens_title": 8,
+ "nombre_documents": 13550,
+ "nombre_tokens_content": 4095143,
+ "nombre_tokens_title": 103819,
+ "nombre_tokens_unique_content": 59173,
+ "nombre_tokens_unique_title": 9227}
