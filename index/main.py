@@ -168,6 +168,6 @@ if __name__=="__main__":
     # Liste des URLs générées par un crawler
     liste_urls = "donnees/crawled_urls.json"
     # Création d'un index avec un data processing simple
-    index(liste_urls, champs=['title', 'content'])
+    index(liste_urls, champs=['title'])
     # Création d'un index avec un data processing avancé
     index(liste_urls, champs=['title', 'content'], option="stemming")
