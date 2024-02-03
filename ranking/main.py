@@ -13,8 +13,8 @@ def ranking_lineaire(id_docs, infos_doc, documents, req_tokens):
         for token in req_tokens : 
             scores.setdefault(doc, 0)
             
-            score_count_title = 25 * infos_doc['title'][token][doc]['count']
-            score_count_content = 10 * infos_doc['content'][token][doc]['count']
+            score_count_title = 10* infos_doc['title'][token][doc]['count']
+            score_count_content = 1 * infos_doc['content'][token][doc]['count']
 
             scores[doc] += score_count_title + score_count_content
     
@@ -25,12 +25,12 @@ def ranking_lineaire(id_docs, infos_doc, documents, req_tokens):
         # Titre
         corpus = content_doc['title'].apply(lambda x: x.lower().split()).tolist()
         bm25 = BM25Okapi(corpus)
-        score_bm25_title = 25 * float(bm25.get_scores(req_tokens))
+        score_bm25_title = 10 * float(bm25.get_scores(req_tokens))
         
         # Corpus 
         corpus = content_doc['content'].apply(lambda x: x.lower().split()).tolist()
         bm25 = BM25Okapi(corpus)
-        score_bm25_content = 10 * float(bm25.get_scores(req_tokens))
+        score_bm25_content = 5 * float(bm25.get_scores(req_tokens))
 
         scores[doc] += score_bm25_title + score_bm25_content
 
@@ -39,7 +39,11 @@ def ranking_lineaire(id_docs, infos_doc, documents, req_tokens):
 
     return scores_tries
 
-def reponse_requete(requete):
+def reponse_requete(requete, type_filtre:str='et'):
+
+    # Vérification du type de l'entrée
+    if type_filtre not in ['et', 'ou']:
+        raise ValueError("Le type de filtre choisi est incorrect. Veuillez-choisir entre 'et' et 'ou'.")
 
     # Importer les documents 
     documents = pd.read_json("donnees/documents.json", encoding="utf-8")
@@ -54,7 +58,6 @@ def reponse_requete(requete):
 
     # Tokeniser la requête avec un split sur les espaces + downcase 
     req_tokens = requete.lower().split()
-    print(req_tokens)
 
     # Récupérer la liste des documents où les tokens apparaissent
     tokens_docs = {}
@@ -65,8 +68,11 @@ def reponse_requete(requete):
                 tokens_docs.setdefault(token, []).extend(list(doc.keys()))
 
     # Récupérer les identifiants des documents qui ont tous les tokens de la requête 
-    id_doc_tokens_req = list(reduce(and_, (set(v) for v in tokens_docs.values())))
-    print("doc : ", id_doc_tokens_req)
+    if type_filtre=="et" : 
+        id_doc_tokens_req = list(reduce(and_, (set(v) for v in tokens_docs.values())))
+    elif type_filtre=="ou":
+        id_doc_tokens_req = list(reduce(or_, (set(v) for v in tokens_docs.values())))
+    print("doc : ", len(id_doc_tokens_req))
 
     # Stocker les informations des tokens dans les documents restants
     infos_doc = {}
@@ -105,5 +111,6 @@ def reponse_requete(requete):
         fichier_json.write(json_str)
 
 if __name__=="__main__":
-    requete = "erreurs statistiques classiques"
-    reponse_requete(requete)
+    requete = "erreurs statistiques"
+    type_filtre = "et"
+    reponse_requete(requete, type_filtre)
