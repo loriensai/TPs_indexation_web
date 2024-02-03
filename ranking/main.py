@@ -59,7 +59,7 @@ def reponse_requete(requete, type_filtre:str='et'):
     # Tokeniser la requête avec un split sur les espaces + downcase 
     req_tokens = requete.lower().split()
 
-    # Récupérer la liste des documents où les tokens apparaissent
+    # Récupérer la liste des identifiants des documents où les tokens apparaissent
     tokens_docs = {}
 
     for df in [df_title, df_content]:
@@ -67,10 +67,12 @@ def reponse_requete(requete, type_filtre:str='et'):
             if token in req_tokens:
                 tokens_docs.setdefault(token, []).extend(list(doc.keys()))
 
-    # Récupérer les identifiants des documents qui ont tous les tokens de la requête 
+    # Récupérer les identifiants des documents selon le type de filtre 
+    # "ET" : Les documents ont tous les tokens de la requête
     if type_filtre=="et" : 
         id_doc_tokens_req = list(reduce(and_, (set(v) for v in tokens_docs.values())))
-    elif type_filtre=="ou":
+    # "OU" : Les documents ont au moins un token de la requête
+    elif type_filtre=="ou": 
         id_doc_tokens_req = list(reduce(or_, (set(v) for v in tokens_docs.values())))
     print("doc : ", len(id_doc_tokens_req))
 
