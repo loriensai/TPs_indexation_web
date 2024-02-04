@@ -1,3 +1,4 @@
 pandas
 nltk
 rank_bm25
+scikit-learn

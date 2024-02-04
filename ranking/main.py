@@ -1,20 +1,48 @@
 import json
 import pandas as pd 
 import nltk
+from nltk.corpus import stopwords
 from functools import reduce
 from operator import and_, or_
 from rank_bm25 import BM25Okapi
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+
+def data_processing_simple(doc:str)->list:
+    """ Tokenisation d'un document avec un prétraitement minimal
+
+    Le prétraitement comprend : 
+        - une tokenization du document avec un split sur les espaces ; 
+        - la conversion des tokens en minuscules (downcase).
+
+    Args:
+        doc (str): document à tokeniser 
+
+    Returns:
+        list: document tokenisé avec le prétraitement minimal
+    """
+    return doc.lower().split()
+
 
 def ranking_lineaire(id_docs, infos_doc, documents, req_tokens):
     scores = {}
 
+    # Calculer l'IDF pour appliquer un poids plus important aux tokens qui ont du sens par rapport aux stop words
+    vectorizer = TfidfVectorizer(vocabulary=req_tokens)
+    vectorizer.fit(documents['content'])
+    idf_scores = vectorizer.idf_
+
     # Variable 1 : Importance sur le compte des tokens 
     for doc in id_docs:
         for token in req_tokens : 
+
+            # Récupérer le poids du token calculé avec l'IDF
+            poids = idf_scores[vectorizer.vocabulary_[token]]
+
             scores.setdefault(doc, 0)
             
-            score_count_title = 10* infos_doc['title'][token][doc]['count']
-            score_count_content = 1 * infos_doc['content'][token][doc]['count']
+            score_count_title = 10 * poids * infos_doc['title'][token][doc]['count']
+            score_count_content = 5 * poids * infos_doc['content'][token][doc]['count']
 
             scores[doc] += score_count_title + score_count_content
     
@@ -23,12 +51,12 @@ def ranking_lineaire(id_docs, infos_doc, documents, req_tokens):
         content_doc = documents[documents.apply(lambda x: x['id'] == int(doc), axis=1)]
         
         # Titre
-        corpus = content_doc['title'].apply(lambda x: x.lower().split()).tolist()
+        corpus = content_doc['title'].apply(lambda x: data_processing_simple(x))
         bm25 = BM25Okapi(corpus)
         score_bm25_title = 10 * float(bm25.get_scores(req_tokens))
         
         # Corpus 
-        corpus = content_doc['content'].apply(lambda x: x.lower().split()).tolist()
+        corpus = content_doc['content'].apply(lambda x: data_processing_simple(x))
         bm25 = BM25Okapi(corpus)
         score_bm25_content = 5 * float(bm25.get_scores(req_tokens))
 
@@ -56,17 +84,16 @@ def reponse_requete(requete, type_filtre:str='et'):
     with open("donnees/content_pos_index.json", 'r', encoding="utf-8") as fichier_json:
         df_content = json.load(fichier_json)
 
-    # Tokeniser la requête avec un split sur les espaces + downcase 
-    req_tokens = requete.lower().split()
+    # Tokeniser la requête avec le même data processing que celui appliqué aux documents
+    req_tokens = data_processing_simple(requete)
 
     # Récupérer la liste des identifiants des documents où les tokens apparaissent
     tokens_docs = {}
-
     for df in [df_title, df_content]:
         for token, doc in df.items():
             if token in req_tokens:
                 tokens_docs.setdefault(token, []).extend(list(doc.keys()))
-
+    
     # Récupérer les identifiants des documents selon le type de filtre 
     # "ET" : Les documents ont tous les tokens de la requête
     if type_filtre=="et" : 
@@ -74,7 +101,6 @@ def reponse_requete(requete, type_filtre:str='et'):
     # "OU" : Les documents ont au moins un token de la requête
     elif type_filtre=="ou": 
         id_doc_tokens_req = list(reduce(or_, (set(v) for v in tokens_docs.values())))
-    print("doc : ", len(id_doc_tokens_req))
 
     # Stocker les informations des tokens dans les documents restants
     infos_doc = {}
@@ -86,8 +112,6 @@ def reponse_requete(requete, type_filtre:str='et'):
                 infos_doc[col].setdefault(token, {}).setdefault(str(id_doc), {'positions': [], 'count': 0})
                 if (token in index) and (id_doc in index[token]) :
                     infos_doc[col][token][id_doc] = index[token][id_doc]
-                    
-    print(infos_doc)
 
     # Appliquer la fonction de ranking linéaire pour ordonner les documents restants 
     scores_doc = ranking_lineaire(id_doc_tokens_req, infos_doc, documents, req_tokens)
@@ -101,18 +125,18 @@ def reponse_requete(requete, type_filtre:str='et'):
     for i, (doc, score) in enumerate(scores_doc) : 
         infos = documents[documents.apply(lambda x: x['id'] == int(doc), axis=1)]
         resultat['ranking'][i] = {
-            'titre': infos['title'].to_string(),
-            'url': infos['url'].to_string(),
+            'titre': infos['title'].values[0],
+            'url': infos['url'].values[0],
             'score': score
         }
         
     # Exporter les résultats dans un fichier json 
-    with open('resultats/results.json', 'w', encoding='utf-8') as fichier_json:
+    with open(f'resultats/results_{type_filtre}.json', 'w', encoding='utf-8') as fichier_json:
         json_str = json.dumps(resultat, ensure_ascii=False)
         json_str = json_str.replace(', "', ',\n "')
         fichier_json.write(json_str)
 
 if __name__=="__main__":
-    requete = "erreurs statistiques"
-    type_filtre = "et"
-    reponse_requete(requete, type_filtre)
+    requete = "pass sanitaire covid-19"
+    reponse_requete(requete, "et")
+    reponse_requete(requete, "ou") 
