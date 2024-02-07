@@ -41,13 +41,13 @@ L'idée principale de la construction des index web est de tokeniser le champ s�
 
 La **différence entre un index non positionnel et positionnel** réside dans les informations collectées : l'index non positionnel associe l'identifiant d'un document à un token, tandis que l'index positionnel inclut également les positions des tokens et leur nombre d'apparitions au sein du document.    
 
-Dans ce code, l'implémentation des index non positionnel et positionnel se fait simultanément. L'utilisateur précise uniquement les champs sur lesquels il souhaite construire les index. Il peut également préciser une option de prétraitement des données qui sera expliquée plus en détails dans la partie suivante. 
+Dans ce code, l'implémentation des index non positionnel et positionnel se fait simultanément. L'utilisateur précise uniquement le ou les champs sur lesquels il souhaite construire les index. Il peut également préciser une option de prétraitement des données qui sera expliquée plus en détails dans la partie suivante. 
 
 Les étapes qui vont suivre décrivent la logique suivie lors de l'implémentation des index web : 
 
 1. Tout d'abord, le programme **récupère la liste des URLs fournies** au format `json`. Elle permet d'avoir directement, pour chaque page web, l'URL, le titre, le contenu et le texte situé dans la balise h1. 
 
-2. Il **vérifie que les champs entrés par l'utilisateur** ont bien été founis dans le fichier `json`. Cette étape est assez spécifique à ce projet, dans l'idéal, il faudrait faire l'extraction des champs proposés par l'utilisateur des pages webs (par la lecture des fichiers HTML à télécharger à partir de l'URL fournie). Il faudrait tout de même que les champs proposés soient valides ou alors proposer une liste de possibilités à l'utilisateur.
+2. Il **vérifie que les champs entrés par l'utilisateur** ont bien été fournis dans le fichier `json`. Cette étape est assez spécifique à ce projet, dans l'idéal, il faudrait faire l'extraction des champs proposés par l'utilisateur (par la lecture des fichiers HTML à télécharger à partir de l'URL fournie). Il faudrait tout de même que les champs proposés soient valides ou alors proposer une liste de possibilités à l'utilisateur.
 
 3. Ensuite, les différents **champs retenus sont tokenisés et un traitement est appliqué en fonction de l'option choisie** par l'utilisateur. Un choix par défaut est implémenté.
 
