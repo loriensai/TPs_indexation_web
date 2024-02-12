@@ -77,12 +77,12 @@ De plus, **un poids (et donc un score) plus important est accordé aux tokens qu
 
 La score calculé pour chaque document (et en sommant sur chaque token) peut se résumer ainsi : 
 
-$$
-\text{Score} \leftarrow 10 \times \text{idf_score(token)} \times \text{nb_occurrences_titre(token)} \\
-      + 5 \times \text{idf_score(token)} \times \text{nb_occurrences_contenu(token)} \\
+```math
+\text{Score} \leftarrow 10 \times \text{idfScore(token)} \times \text{nbOccurrencesTitre(token)} \\
+      + 5 \times \text{idfScore(token)} \times \text{nbOccurrencesContenu(token)} \\
       + 10 \times \text{bm25(requête, titre)} \\
       + 5 \times \text{bm25(requête, contenu)}
-$$
+```
 
 
 > Une multitude d'approches pourraient être envisagées pour calculer le score des documents, il est donc important de réfléchir aux fonctions de scoring qui le composent pour que le score soit le plus pertinent possible. Pour aller plus loin, il serait aussi intéressant d'évaluer la pertinence des résultats obtenus afin de voir quelles améliorations pourraient être apportées et comment. 
