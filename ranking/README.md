@@ -4,7 +4,7 @@
 
 ## Brève description
 
-Ce projet permet de **répondre à une requête donnée** par un utilisateur en sélectionnant les documents pertinents pour la requête et en les classant. Cela est réalisé grâce à l'utilisation d'une **fonction de ranking** qui évalue chaque document et lui attribue un score en fonction de sa pertinence par rapport à la requête donnée.
+Ce projet permet de **répondre à une requête donnée** par un utilisateur en sélectionnant les documents pertinents pour la requête et en les classant. Cela est réalisé grâce à l'utilisation d'une **fonction de ranking** qui évalue chaque document et leur attribue un score en fonction de leur pertinence par rapport à la requête donnée.
 
 ## Organisation de l'archive 
 
@@ -61,7 +61,8 @@ Pour ce code, les index utilisés sont ceux qui ont été fournis et ne sont pas
 7. Enfin, le programme **stocke dans un fichier `json` les informations issues du traitement de la requête** à savoir :
     * le nombre de documents total sur lequel se base le traitement ;
     * le nombre de documents ayant survécu au filtre ;
-    * la liste des documents classés par ordre de pertinence pour répondre à la requête. Chaque document est présenté avec son titre, son URL et le score attribué par la fonction de ranking. 
+    * la liste des documents classés par ordre de pertinence pour répondre à la requête.          
+    Chaque document est présenté avec son titre, son URL et le score attribué par la fonction de ranking. 
 
 ## Fonction de ranking 
 
