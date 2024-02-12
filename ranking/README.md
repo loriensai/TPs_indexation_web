@@ -81,13 +81,13 @@ La score calculé pour chaque document (et en sommant sur chaque token) peut se 
 \text{Score} \leftarrow 10 \times \text{idfScore(token)} \times \text {nbOccurrencesTitre(token)} 
 ```
 ```math
-5 \times \text{idfScore(token)} \times \text{nbOccurrencesContenu(token)} 
++ 5 \times \text{idfScore(token)} \times \text{nbOccurrencesContenu(token)} 
 ```
 ```math
-10 \times \text{bm25(requête, titre)} 
++ 10 \times \text{bm25(requête, titre)} 
 ```
 ```math
-5 \times \text{bm25(requête, contenu)}
++ 5 \times \text{bm25(requête, contenu)}
 ```
 
 > Une multitude d'approches pourraient être envisagées pour calculer le score des documents, il est donc important de réfléchir aux fonctions de scoring qui le composent pour que le score soit le plus pertinent possible. Pour aller plus loin, il serait aussi intéressant d'évaluer la pertinence des résultats obtenus afin de voir quelles améliorations pourraient être apportées et comment. 
