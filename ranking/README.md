@@ -14,7 +14,7 @@ Ce projet permet de **répondre à une requête donnée** par un utilisateur en 
 
 L'archive contient également deux dossiers qui stockent les fichiers d'entrée et sortie : 
 *   **donnees** : stocke des fichiers `json` contenant des informations sur les documents et les deux index positionnels crées à partir du titre et du contenu des documents ; 
-*   **resultats** : contient l'ordonnancement des résultats retenus pour des requêtes de type "et" et "ou".
+*   **resultats** : contient l'ordonnancement des résultats retenus pour des requêtes de type *et* et *ou*.
 
 ## Installation des dépendances 
 
@@ -51,7 +51,7 @@ Pour ce code, les index utilisés sont ceux qui ont été fournis et ne sont pas
 3. À présent, il convient de **transformer la requête en utilisant la même transformation que celle appliquée sur les documents** lors de la construction des index positionnels. Pour les index founis, le prétraitement appliqué consiste à effectuer une tokenisation avec un split sur les espaces et à mettre tous les tokens en minuscules (downcase). C'est donc ce qui a été appliqué à la requête. 
 
 4. La prochaine étape consiste à **sélectionner les documents pertinents pour répondre à la requête en fonction du type de requête** choisi par l'utilisateur. 
-    * Le programme sélectionne d'abord la liste des identifiants des documents où les tokens apparaissent, que ce soit dans le titre et/ou dans le contenu de la page. Il obtient un dictionnaire avec la structure suivante : `{'token' : [identifiants des dictionnaires]}`.
+    * Le programme sélectionne d'abord la liste des identifiants des documents où les tokens apparaissent, que ce soit dans le titre et/ou dans le contenu de la page. Il obtient un dictionnaire avec la structure suivante : `{'token' : [identifiants des documents]}`.
     * Il stocke ensuite dans une liste les identifiants des documents qui contiennent tout ou une partie des tokens de la requête en fonction du type de requête choisi. 
 
 5. Le programme **récupère ensuite à toutes les informations qu'il possède sur les tokens et leurs informations dans les documents restants**, à savoir leur nombre d'occurrences et leurs positions dans le document. Il différencie les informations relatives au titre et celles relatives au contenu. 
@@ -78,10 +78,11 @@ De plus, **un poids (et donc un score) plus important est accordé aux tokens qu
 La score calculé pour chaque document (et en sommant sur chaque token) peut se résumer ainsi : 
 
 $$
-Score <- 10 \times idf\_score(token) \times nb\_occurrences\_titre(token) \\
-&+ 5 \times idf\_score(token) \times nb\_occurrences\_contenu(token) \\
-&+ 10 \times bm25(requête, titre) \\
-&+ 5 \times bm25(requête, contenu)
+\text{Score} \leftarrow 10 \times \text{idf\_score(token)} \times \text{nb\_occurrences\_titre(token)} \\
+      + 5 \times \text{idf\_score(token)} \times \text{nb\_occurrences\_contenu(token)} \\
+      + 10 \times \text{bm25(requête, titre)} \\
+      + 5 \times \text{bm25(requête, contenu)}
 $$
+
 
 > Une multitude d'approches pourraient être envisagées pour calculer le score des documents, il est donc important de réfléchir aux fonctions de scoring qui le composent pour que le score soit le plus pertinent possible. Pour aller plus loin, il serait aussi intéressant d'évaluer la pertinence des résultats obtenus afin de voir quelles améliorations pourraient être apportées et comment. 
