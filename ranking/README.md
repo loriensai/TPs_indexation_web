@@ -78,9 +78,9 @@ De plus, **un poids (et donc un score) plus important est accordé aux tokens qu
 La score calculé pour chaque document (et en sommant sur chaque token) peut se résumer ainsi : 
 
 ```math
-\text{Score} \leftarrow 10 \times \text{idfScore(token)} \times \text{nbOccurrencesTitre(token)} \\
-      + 5 \times \text{idfScore(token)} \times \text{nbOccurrencesContenu(token)} \\
-      + 10 \times \text{bm25(requête, titre)} \\
+\text{Score} \leftarrow 10 \times \text{idfScore(token)} \times \text{nbOccurrencesTitre(token)} + \\
+      + 5 \times \text{idfScore(token)} \times \text{nbOccurrencesContenu(token)} + \\
+      + 10 \times \text{bm25(requête, titre)} + \\
       + 5 \times \text{bm25(requête, contenu)}
 ```
 
